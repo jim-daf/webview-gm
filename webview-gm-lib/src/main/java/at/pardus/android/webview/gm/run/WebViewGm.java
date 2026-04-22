@@ -100,6 +100,15 @@ public class WebViewGm extends WebView {
 	private void init() {
 		WebSettings settings = getSettings();
 		settings.setJavaScriptEnabled(true);
+		// CWE-749 / CWE-79: Google Play (#11) flags WebView libraries that leave
+		// the platform-default file:// access flags enabled while running
+		// arbitrary user JavaScript. Lock them down so a user script (or a
+		// loaded page) cannot read local app data via fetch('file:///...')
+		// or escalate from a file:// page to other origins via XHR.
+		settings.setAllowFileAccess(false);
+		settings.setAllowContentAccess(false);
+		settings.setAllowFileAccessFromFileURLs(false);
+		settings.setAllowUniversalAccessFromFileURLs(false);
 		webViewClient = new WebViewClientGm(scriptStore, JSBRIDGENAME,
 				generateSecret());
 		setWebViewClient(webViewClient);
